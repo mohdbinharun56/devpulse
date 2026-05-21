@@ -1,6 +1,8 @@
+import config from "../../config";
 import { pool } from "../../database/index.db";
-import type { IAuthSignup } from "./auth.interface";
+import type { IAuthLogin, IAuthSignup } from "./auth.interface";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const signupIntoDB = async (signupData: IAuthSignup) => {
     const {name,email,password,role} =signupData;
@@ -15,7 +17,7 @@ const signupIntoDB = async (signupData: IAuthSignup) => {
 }
 
 
-const loginIntoDB = async (loginData: any)=>{
+const loginIntoDB = async (loginData: IAuthLogin)=>{
     // console.log(loginData);
     const {email, password} = loginData;
 
@@ -29,16 +31,30 @@ const loginIntoDB = async (loginData: any)=>{
     }
 
     const user = isUserExist.rows[0];
+    // console.log(user);
 
-    const matchPassword = bcrypt.compare(password,user.password);
+    const matchPassword = await bcrypt.compare(password,user.password);
+    // console.log("Match Password is: ", matchPassword);
 
     if(!matchPassword){
         throw new Error("Invalid credentials!");
     }
 
+    // generate accessToken
+    const payload = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+    }
+    const accessToken = await jwt.sign(payload,config.jwt_secret as string, {expiresIn: "1d"});
+
     delete user.password;
 
-    return {user};
+    return {
+        token: accessToken,
+        user
+    };
 }
 
 export const authService = {
