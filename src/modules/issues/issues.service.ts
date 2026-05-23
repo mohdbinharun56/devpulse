@@ -162,9 +162,30 @@ const updateIssue = async (payload: IIssues, user: any, id: string) => {
     return result;
 
 }
+
+const deleteIssue = async (id: string)=>{
+    console.log("ID: ",id);
+    const issue = await pool.query(`
+    SELECT * FROM issues WHERE id = $1
+    `,[id]);
+    console.log("Issues: ",issue);
+    if(issue.rows.length === 0){
+        throw new Error("Issue not found!");
+    }
+
+    const result = await pool.query(`
+    DELETE FROM issues WHERE id = $1
+    `,[id]);;
+
+    // console.log("Delete Result: ",result);
+
+    return result;
+}
+
 export const issuesService = {
     createIssueIntoDB,
     getAllIssues,
     getSingleIssue,
-    updateIssue
+    updateIssue,
+    deleteIssue
 } 

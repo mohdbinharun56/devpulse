@@ -71,17 +71,32 @@ const updateIssue = async (req: Request, res: Response) => {
         // console.log(req.user);
         const user = req.user;
         const updatedIssueData = req.body;
-        const {id} = req.params;
+        const { id } = req.params;
 
-        const result = await issuesService.updateIssue(updatedIssueData,user,id as string);
-        if(result.rows.length === 0){
-            return SendResponse(res,404,false,"Issue does not updated!")
+        const result = await issuesService.updateIssue(updatedIssueData, user, id as string);
+        if (result.rows.length === 0) {
+            return SendResponse(res, 404, false, "Issue does not updated!")
         }
-        return SendResponse(res,200,true,"Issue updated successfully",result.rows[0]);
+        return SendResponse(res, 200, true, "Issue updated successfully", result.rows[0]);
     } catch (error: any) {
         return SendResponse(res, 500, false, error.message, error);
     }
 
+}
+
+const deleteIssue = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        // console.log(req.user);
+        const result = await issuesService.deleteIssue(id as string);
+        console.log("Controller Delete: ", result);
+        if (result.rowCount !== 1) {
+            return SendResponse(res,204,false,"Issue does not deleted");
+        }
+        return SendResponse(res,204,true,"Issue deleted successfully");
+    } catch (error: any) {
+        return SendResponse(res, 500, false, error.message, error);
+    }
 }
 
 export const issuesController = {
@@ -89,4 +104,5 @@ export const issuesController = {
     getAllIssues,
     getSingleIssue,
     updateIssue,
+    deleteIssue
 }
