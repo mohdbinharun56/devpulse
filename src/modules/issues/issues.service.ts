@@ -1,7 +1,6 @@
-import { title } from "node:process";
 import config from "../../config";
 import { pool } from "../../database/index.db";
-import type { IIssues, IReporter } from "./issues.interface";
+import type { IFormattedIssue, IIssues, IReporter, IUser } from "./issues.interface";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { UserRole } from "../../types/user.type";
 
@@ -61,7 +60,7 @@ const getAllIssues = async (orderBy: string) => {
     // console.log("reporters",reporters);
     // console.log("reporter map after set: ",reporterMap);
 
-    const formattedIssue = allIssues.map((issue: any) => ({
+    const formattedIssue = allIssues.map((issue: IFormattedIssue) => ({
         id: issue.id,
         title: issue.title,
         description: issue.description,
@@ -122,7 +121,7 @@ const getSingleIssue = async (id: string) => {
 }
 
 
-const updateIssue = async (payload: IIssues, user: any, id: string) => {
+const updateIssue = async (payload: IIssues, user: IUser, id: string) => {
     // console.log(payload);
     // console.log("User-Service: ", user);
     // console.log("Issue-ID: ", id);
