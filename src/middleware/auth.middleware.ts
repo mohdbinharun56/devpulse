@@ -11,7 +11,7 @@ const auth = (...roles: string[]) => {
             const token = req.headers.authorization;
 
             if (!token) {
-                return SendResponse(res, 401, false, "Unathorized access!");
+                return SendResponse(res, 401, false, "Unauthorized access!");
             }
 
 
@@ -39,8 +39,8 @@ const auth = (...roles: string[]) => {
 
             next();
         } catch (error: any) {
-            SendResponse(res,500,false,error.message,error)
-            next(error);
+            SendResponse(res,401,false,error.message,error)
+            // next(error);
         }
     }
 }

@@ -9,12 +9,12 @@ const signup = async (req: Request, res: Response) =>{
         const result = await authService.signupIntoDB(signupData);
 
         if(result.rows.length === 0){
-            return SendResponse(res,401,false,"User does not registered successfully!!");
+            return SendResponse(res,400,false,"User registration failed");
         }
 
         delete result.rows[0].password;
 
-        return SendResponse(res,200,true,"User registered successfully", result.rows[0]); 
+        return SendResponse(res,201,true,"User registered successfully", result.rows[0]); 
     } catch (error: any) {
        return SendResponse(res,500,false,error.message,error);
     }

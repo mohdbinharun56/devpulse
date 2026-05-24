@@ -11,7 +11,7 @@ const createIssue = async (req: Request, res: Response) => {
         const result = await issuesService.createIssueIntoDB(issueData, authorization as string);
 
         if (result.rows.length === 0) {
-            return SendResponse(res, 404, false, "Not Found!")
+            return SendResponse(res, 400, false, "Issue creation failed");
         }
 
         return SendResponse(res, 201, true, "Issue created successfully", result.rows[0])
@@ -43,9 +43,9 @@ const getAllIssues = async (req: Request, res: Response) => {
         const result = await issuesService.getAllIssues(orderBy);
 
         if (result.length === 0) {
-            return SendResponse(res, 404, false, "Isseus empty!", []);
+            return SendResponse(res, 200, true, "No issues found", []);
         }
-        return SendResponse(res, 200, true, "Retrive all issues", result);
+        return SendResponse(res, 200, true, "Issues retrieved successfully", result);
     } catch (error: any) {
         return SendResponse(res, 500, error.message, error)
     }
@@ -56,9 +56,10 @@ const getSingleIssue = async (req: Request, res: Response) => {
         const { id } = req.params;
         const result = await issuesService.getSingleIssue(id as string);
 
-        // if(result === 0){
-        //     return SendResponse(res,404,false,"Issue not found!")
-        // }
+        if (!result) {
+            return SendResponse(res, 404, false, "Issue not found");
+        }
+
         return SendResponse(res, 200, true, "Retrive single issue", result);
     } catch (error: any) {
         return SendResponse(res, 500, false, error.message, error)
@@ -75,7 +76,7 @@ const updateIssue = async (req: Request, res: Response) => {
 
         const result = await issuesService.updateIssue(updatedIssueData, user, id as string);
         if (result.rows.length === 0) {
-            return SendResponse(res, 404, false, "Issue does not updated!")
+            return SendResponse(res, 400, false, "Issue update failed");
         }
         return SendResponse(res, 200, true, "Issue updated successfully", result.rows[0]);
     } catch (error: any) {
@@ -91,9 +92,9 @@ const deleteIssue = async (req: Request, res: Response) => {
         const result = await issuesService.deleteIssue(id as string);
         console.log("Controller Delete: ", result);
         if (result.rowCount !== 1) {
-            return SendResponse(res,204,false,"Issue does not deleted");
+            return SendResponse(res,404,false,"Issue not found");
         }
-        return SendResponse(res,204,true,"Issue deleted successfully");
+        return SendResponse(res, 200, true, "Issue deleted successfully");
     } catch (error: any) {
         return SendResponse(res, 500, false, error.message, error);
     }
