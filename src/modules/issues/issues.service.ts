@@ -126,7 +126,7 @@ const updateIssue = async (payload: IIssues, user: IUser, id: string) => {
     // console.log("User-Service: ", user);
     // console.log("Issue-ID: ", id);
 
-    const { title, description, type } = payload;
+    const { title, description, type, status = "in_progress" } = payload;
     const issue = await getSingleIssue(id);
     // console.log("issue with ID: ",issue);
 
@@ -136,7 +136,7 @@ const updateIssue = async (payload: IIssues, user: IUser, id: string) => {
         throw new Error("Issues is already Updated.");
     }
 
-    const status = "in_progress";
+    // const status = "in_progress";
     const updated_at = new Date();
 
     if (user.role === UserRole.maintainer) {
