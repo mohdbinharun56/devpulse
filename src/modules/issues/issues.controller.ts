@@ -1,6 +1,7 @@
 import type { Request, Response } from "express"
 import SendResponse from "../../utilities/SendResponse";
 import { issuesService } from "./issues.service";
+import type { IUser } from "./issues.interface";
 
 const createIssue = async (req: Request, res: Response) => {
     try {
@@ -87,7 +88,7 @@ const getSingleIssue = async (req: Request, res: Response) => {
 const updateIssue = async (req: Request, res: Response) => {
     try {
         // console.log(req.user);
-        const user = req.user;
+        const user = req.user as IUser;
         const updatedIssueData = req.body;
         const { id } = req.params;
 
