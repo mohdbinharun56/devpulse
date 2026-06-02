@@ -2,7 +2,7 @@ export interface IIssues {
     title: string;
     description: string;
     type: "bug" | "feature_request";
-    status?: "open" | "in_progress" | "resolved"; 
+    status?: "open" | "in_progress" | "resolved";
 }
 
 export interface IFormattedIssue extends IIssues {
@@ -27,3 +27,8 @@ export interface IUser {
     exp: number
 }
 
+export interface IGetIssueQuery {
+    sort?: "newest" | "oldest";
+    type?: "bug" | "feature_request";
+    status?: "open" | "in_progress" | "resolved";
+}

@@ -24,28 +24,45 @@ const createIssue = async (req: Request, res: Response) => {
 
 const getAllIssues = async (req: Request, res: Response) => {
     try {
-        const allowedSort = ["newest", "oldest"];
+        const { sort, type, status } = req.query;
+        // console.log("Request sort query: ", sort);
+        // console.log("Request type query: ", type);
+        // console.log("Request status query: ", status);
 
-        const { sort } = req.query; // "newest" || "oldest" 
-        // console.log("Request query: ",sort);
+        const allowedSort = ["newest", "oldest"];
+        const allowedType = ["bug", "feature_request"] ;
+        const allowedStatus = ["open", "in_progress", "resolved"];
 
         const sortQuery = allowedSort.includes(sort as string) ? sort : allowedSort[0];
+        const typeQuery = allowedType.includes(type as string) ? type : undefined;
+        const statusQuery = allowedStatus.includes(status as string) ? status : undefined;
 
-        // console.log("sort",sortQuery);
-
-        let orderBy = 'DESC';
-
-        if (sortQuery === 'oldest') {
-            orderBy = 'ASC';
+        const query = {
+            sort: sortQuery as "newest" | "oldest",
+            type: typeQuery as "bug" | "feature_request",
+            status: statusQuery as "open" | "in_progress" | "resolved"
         }
-
-        // console.log("order", orderBy)
-        const result = await issuesService.getAllIssues(orderBy);
+        const result = await issuesService.getAllIssues(query);
 
         if (result.length === 0) {
-            return SendResponse(res, 200, true, "No issues found", []);
+            return SendResponse(
+                res,
+                200,
+                true,
+                "No issues found",
+                []
+            );
         }
-        return SendResponse(res, 200, true, "Issues retrieved successfully", result);
+
+        return SendResponse(
+            res,
+            200,
+            true,
+            "Issues retrieved successfully",
+            result
+        );
+
+
     } catch (error: any) {
         return SendResponse(res, 500, error.message, error)
     }
@@ -60,7 +77,7 @@ const getSingleIssue = async (req: Request, res: Response) => {
             return SendResponse(res, 404, false, "Issue not found");
         }
 
-        return SendResponse(res, 200, true, "Retrive single issue", result);
+        return SendResponse(res, 200, true, "Issue retrived successfully", result);
     } catch (error: any) {
         return SendResponse(res, 500, false, error.message, error)
     }
@@ -92,7 +109,7 @@ const deleteIssue = async (req: Request, res: Response) => {
         const result = await issuesService.deleteIssue(id as string);
         console.log("Controller Delete: ", result);
         if (result.rowCount !== 1) {
-            return SendResponse(res,404,false,"Issue not found");
+            return SendResponse(res, 404, false, "Issue not found");
         }
         return SendResponse(res, 200, true, "Issue deleted successfully");
     } catch (error: any) {

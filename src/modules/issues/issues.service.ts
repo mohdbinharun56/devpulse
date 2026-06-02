@@ -1,6 +1,6 @@
 import config from "../../config";
 import { pool } from "../../database/index.db";
-import type { IFormattedIssue, IIssues, IReporter, IUser } from "./issues.interface";
+import type { IFormattedIssue, IGetIssueQuery, IIssues, IReporter, IUser } from "./issues.interface";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { UserRole } from "../../types/user.type";
 
@@ -28,19 +28,30 @@ const createIssueIntoDB = async (issueData: IIssues, token: string) => {
 
 }
 
+const getAllIssues = async ({sort,type,status}: IGetIssueQuery)=>{
+    let query = "SELECT * FROM issues WHERE 1=1 ";
+    const values: any[] = [];
 
-const getAllIssues = async (orderBy: string) => {
-    const issuesResult = await pool.query(`
-    SELECT * FROM issues ORDER BY created_at ${orderBy}`);
-
-    const allIssues = issuesResult.rows;
-
-    if (!allIssues) {
-        throw new Error(`Issues not found`);
+    if(type){
+        values.push(type);
+        query+= ` AND type = $${values.length}`
     }
 
-    // console.log("issue Results: ",allIssues);
+    if(status){
+        values.push(status);
+        query+=` AND status = $${values.length}`
+    }
 
+    const orderBy = sort === "oldest" ? "ASC" : "DESC";
+
+    query+= ` ORDER BY created_at ${orderBy}`;
+
+    const issuesResult = await pool.query(query,values);
+
+    // console.log(issuesResult);
+
+    const allIssues = issuesResult.rows;
+    
     const reporterIDs = allIssues.map((issue: any) => issue.reporter_id)
     // console.log("Reporter IDs: ",reporterIDs);
 
@@ -73,6 +84,7 @@ const getAllIssues = async (orderBy: string) => {
 
     // console.log(formattedIssue);
     return formattedIssue;
+
 }
 
 const getSingleIssue = async (id: string) => {
